@@ -1,0 +1,5 @@
+host: redis.vcap.me
+port: 6379
+max_idle: 10
+max_active: 50
+idle_timeout: 180
