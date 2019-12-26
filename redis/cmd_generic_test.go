@@ -13,8 +13,8 @@ func TestDel(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 
 	keys := []string{"a", "b", "c"}
 
@@ -47,8 +47,8 @@ func TestScan(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 
 	keys := []string{"1:a", "1:b", "1:c"}
 
@@ -66,6 +66,7 @@ func TestScan(t *testing.T) {
 
 	// Scan
 	values, err := redis.Values(client.Scan(0, "1:*", 0))
+	assert.Nil(t, err)
 
 	// Get next cursor
 	cursor, err := redis.Uint64(values[0], nil)

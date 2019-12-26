@@ -15,6 +15,6 @@ func TestNewClient(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 }

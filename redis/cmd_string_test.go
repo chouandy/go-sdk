@@ -14,8 +14,8 @@ func TestSetGet(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 
 	// Without expiration
 	// - Set
@@ -29,7 +29,7 @@ func TestSetGet(t *testing.T) {
 	err = client.Del("a")
 	assert.Nil(t, err)
 	// - Get after Del
-	a, err = redis.String(client.Get("a"))
+	_, err = redis.String(client.Get("a"))
 	assert.EqualError(t, err, "redigo: nil returned")
 
 	// With millisecond expiration
@@ -42,7 +42,7 @@ func TestSetGet(t *testing.T) {
 	assert.Equal(t, "b", b)
 	// - Get expired
 	time.Sleep(1500 * time.Millisecond)
-	b, err = redis.String(client.Get("b"))
+	_, err = redis.String(client.Get("b"))
 	assert.EqualError(t, err, "redigo: nil returned")
 
 	// With second expiration
@@ -55,6 +55,6 @@ func TestSetGet(t *testing.T) {
 	assert.Equal(t, "c", c)
 	// - Get expired
 	time.Sleep(2100 * time.Millisecond)
-	c, err = redis.String(client.Get("c"))
+	_, err = redis.String(client.Get("c"))
 	assert.EqualError(t, err, "redigo: nil returned")
 }

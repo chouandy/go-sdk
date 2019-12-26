@@ -15,8 +15,8 @@ func TestLPushLPop(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 
 	values := []string{"a", "b", "c", "d", "e"}
 
@@ -53,8 +53,8 @@ func TestRPushRPop(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 
 	values := []string{"a", "b", "c", "d", "e"}
 
@@ -91,8 +91,8 @@ func TestLPushLPopStruct(t *testing.T) {
 	TestInit(t)
 
 	client, err := NewClient()
-	defer client.Close()
 	assert.Nil(t, err)
+	defer client.Close()
 
 	type Order struct {
 		ID     string          `json:"order_id"`
