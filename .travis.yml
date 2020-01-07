@@ -4,7 +4,18 @@ go:
   - 1.12
 
 services:
+  - mysql
   - redis-server
+
+env:
+  DB_DRIVER: mysql
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_DATABASE: test
+  DB_USERNAME: root
+
+before_install:
+  - mysql -e 'CREATE DATABASE test;'
 
 script:
   - go test -v -cover -test.count=1  ./...

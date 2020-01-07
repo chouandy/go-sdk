@@ -1,6 +1,10 @@
 package validator
 
-import "unicode"
+import (
+	"unicode"
+
+	"github.com/go-playground/validator/v10"
+)
 
 // CheckPassword check password
 func CheckPassword(password string, n int, number, lower, upper, special bool) bool {
@@ -44,4 +48,16 @@ func CheckPassword(password string, n int, number, lower, upper, special bool) b
 	}
 
 	return isNumber && isLower && isUpper && isSpecial
+}
+
+// PasswordValidation password validation
+func PasswordValidation(fl validator.FieldLevel) bool {
+	// Get password string
+	password := fl.Field().String()
+	// Check Length, Number, Lowercase character, Uppercase character, Special character
+	return CheckPassword(password, 8, true, true, true, true)
+}
+
+func init() {
+	Validator.RegisterValidation("password", PasswordValidation)
 }

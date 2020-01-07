@@ -1,9 +1,7 @@
-// +build integration
-
 package db_test
 
 import (
-	. "github.com/chouandy/go-sdk/glob/db"
+	. "github.com/chouandy/go-sdk/db"
 	_ "github.com/go-sql-driver/mysql"
 
 	"testing"
