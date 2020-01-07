@@ -1,6 +1,6 @@
 package db
 
-import dgoex "github.com/chouandy/go-sdk/log"
+import logex "github.com/chouandy/go-sdk/log"
 
 var config *Config
 
@@ -13,7 +13,7 @@ func Init() (err error) {
 	}
 
 	// Print log
-	dgoex.TextLog().WithFields(config.LogrusFields()).Info("init db")
+	logex.TextLog().WithFields(config.LogrusFields()).Info("init db")
 
 	// Init gorm db
 	if err = InitGORMDB(); err != nil {

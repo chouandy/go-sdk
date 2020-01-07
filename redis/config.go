@@ -7,7 +7,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
 
-	dgolog "github.com/chouandy/go-sdk/log"
+	logex "github.com/chouandy/go-sdk/log"
 )
 
 var pool *redis.Pool
@@ -40,7 +40,7 @@ func (c *Config) Address() string {
 // Init init redis pool
 func Init(config Config) {
 	// Print log
-	dgolog.TextLog().WithFields(config.LogrusFields()).Info("init redis")
+	logex.TextLog().WithFields(config.LogrusFields()).Info("init redis")
 
 	// New redis pool
 	pool = &redis.Pool{

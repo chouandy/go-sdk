@@ -61,9 +61,9 @@ func readSQLFiles(dir string) error {
 	return nil
 }
 
-// Load get sql by filename
-func Load(file string) string {
-	return sqls[fmt.Sprintf("%s/%s.sql", sqlDir, file)]
+// Load return sql content
+func Load(filePath string) string {
+	return sqls[fmt.Sprintf("%s/%s.sql", sqlDir, filePath)]
 }
 
 // SetSQLDir set sql dir

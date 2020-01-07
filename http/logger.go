@@ -4,15 +4,33 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // NotLoggedPaths not logged paths
 var NotLoggedPaths map[string]struct{}
+
+// Log log struct
+type Log struct {
+	Timestamp             string            `json:"timestamp"`
+	RequestID             string            `json:"request_id,omitempty"`
+	Level                 string            `json:"level"`
+	Status                int               `json:"status"`
+	Method                string            `json:"method"`
+	Path                  string            `json:"path"`
+	Latency               string            `json:"latency"`
+	QueryStringParameters url.Values        `json:"query_string_parameters,omitempty"`
+	PathParameters        map[string]string `json:"path_parameters,omitempty"`
+	Body                  string            `json:"body,omitempty"`
+	Error                 json.RawMessage   `json:"error,omitempty"`
+	ClientIP              string            `json:"client_ip"`
+	Location              string            `json:"location,omitempty"`
+}
 
 // GetLogLevel get log level by status code
 func GetLogLevel(code int) string {
@@ -38,8 +56,13 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
+// Logger logger
+func Logger() gin.HandlerFunc {
+	return LoggerWithWriter(gin.DefaultWriter)
+}
+
 // LoggerWithNotLogged logger with not logged
-func LoggerWithNotLogged(logger *logrus.Logger, paths ...string) gin.HandlerFunc {
+func LoggerWithNotLogged(paths ...string) gin.HandlerFunc {
 	// Set not logged
 	if length := len(paths); length > 0 {
 		NotLoggedPaths = make(map[string]struct{}, length)
@@ -48,11 +71,11 @@ func LoggerWithNotLogged(logger *logrus.Logger, paths ...string) gin.HandlerFunc
 		}
 	}
 
-	return LoggerWithLogrus(logger)
+	return LoggerWithWriter(gin.DefaultWriter)
 }
 
-// LoggerWithLogrus logger with writer
-func LoggerWithLogrus(logger *logrus.Logger) gin.HandlerFunc {
+// LoggerWithWriter logger with writer
+func LoggerWithWriter(out io.Writer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Start timer
 		start := time.Now()
@@ -72,56 +95,44 @@ func LoggerWithLogrus(logger *logrus.Logger) gin.HandlerFunc {
 			return
 		}
 
-		// Get status code
-		status := c.Writer.Status()
-
-		// New logger fields
-		fields := logrus.Fields{
-			"status":    status,
-			"method":    c.Request.Method,
-			"path":      c.Request.URL.Path,
-			"latency":   fmt.Sprintf("%v", time.Now().UTC().Sub(start)),
-			"client_ip": c.ClientIP(),
+		// New log
+		log := &Log{
+			Timestamp:             start.Format(time.RFC3339),
+			Level:                 GetLogLevel(c.Writer.Status()),
+			Status:                c.Writer.Status(),
+			Method:                c.Request.Method,
+			Path:                  c.Request.URL.Path,
+			Latency:               fmt.Sprintf("%v", time.Now().UTC().Sub(start)),
+			QueryStringParameters: make(url.Values),
+			PathParameters:        make(map[string]string),
+			ClientIP:              c.ClientIP(),
 		}
 		// Set request id
 		if requestID, exists := c.Get("request_id"); exists {
-			fields["request_id"] = requestID.(string)
+			log.RequestID = requestID.(string)
 		}
 		// Set query string parameters
-		if len(c.Request.URL.RawQuery) > 0 {
-			fields["query_string_parameters"] = c.Request.URL.Query()
-		}
+		log.QueryStringParameters = c.Request.URL.Query()
 		// Set path parameters
-		if len(c.Params) > 0 {
-			params := map[string]string{}
-			for _, param := range c.Params {
-				params[param.Key] = param.Value
-			}
-			fields["path_parameters"] = params
+		for _, param := range c.Params {
+			log.PathParameters[param.Key] = param.Value
 		}
 		// Set request body
-		if body, err := c.GetRawData(); err == nil && len(body) > 0 {
-			fields["body"] = string(body)
+		if body, err := c.GetRawData(); err == nil {
+			log.Body = string(body)
 		}
 		// Set error
-		if status >= http.StatusBadRequest {
-			fields["error"] = json.RawMessage(writer.body.Bytes())
+		if log.Status >= http.StatusBadRequest {
+			log.Error = json.RawMessage(bytes.TrimRight(writer.body.Bytes(), "\n"))
 		}
 		// Set location
-		if status == http.StatusFound {
-			fields["location"] = c.Writer.Header().Get("Location")
+		if log.Status == http.StatusFound {
+			log.Location = c.Writer.Header().Get("Location")
 		}
 
-		// Set logger fields
-		entry := logger.WithFields(fields)
-
-		// Log by status code
-		if status >= 200 && status < 400 {
-			entry.Info()
-		} else if status >= 400 && status < 500 {
-			entry.Error()
-		} else {
-			entry.Fatal()
+		// Print log
+		if data, err := jsonex.Marshal(log); err == nil {
+			fmt.Fprintln(out, string(data))
 		}
 	}
 }
