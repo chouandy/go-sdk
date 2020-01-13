@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CORSMiddleware cors middleware
-func CORSMiddleware() gin.HandlerFunc {
+// NewCORSMiddleware cors middleware
+func NewCORSMiddleware() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowOrigins: strings.Split(os.Getenv("ALLOW_ORIGINS"), ","),
 		AllowMethods: []string{
