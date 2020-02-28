@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ type Log struct {
 	Method                string            `json:"method"`
 	Path                  string            `json:"path"`
 	Latency               string            `json:"latency"`
-	QueryStringParameters url.Values        `json:"query_string_parameters,omitempty"`
+	QueryStringParameters map[string]string `json:"query_string_parameters,omitempty"`
 	PathParameters        map[string]string `json:"path_parameters,omitempty"`
 	Body                  string            `json:"body,omitempty"`
 	Error                 json.RawMessage   `json:"error,omitempty"`
@@ -103,7 +102,7 @@ func LoggerWithWriter(out io.Writer) gin.HandlerFunc {
 			Method:                c.Request.Method,
 			Path:                  c.Request.URL.Path,
 			Latency:               fmt.Sprintf("%v", time.Now().UTC().Sub(start)),
-			QueryStringParameters: make(url.Values),
+			QueryStringParameters: make(map[string]string),
 			PathParameters:        make(map[string]string),
 			ClientIP:              c.ClientIP(),
 		}
@@ -112,7 +111,9 @@ func LoggerWithWriter(out io.Writer) gin.HandlerFunc {
 			log.RequestID = requestID.(string)
 		}
 		// Set query string parameters
-		log.QueryStringParameters = c.Request.URL.Query()
+		for key := range c.Request.URL.Query() {
+			log.QueryStringParameters[key] = c.Query(key)
+		}
 		// Set path parameters
 		for _, param := range c.Params {
 			log.PathParameters[param.Key] = param.Value
