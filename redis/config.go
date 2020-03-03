@@ -1,55 +1,75 @@
 package redis
 
 import (
-	"fmt"
-	"time"
+	"errors"
+	"os"
+	"strconv"
 
-	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
-
-	logex "github.com/chouandy/go-sdk/log"
 )
-
-var pool *redis.Pool
 
 // Config config struct
 type Config struct {
-	Host        string `json:"host" yaml:"host"`
-	Port        int    `json:"port" yaml:"port"`
-	MaxIdle     int    `json:"max_idle" yaml:"max_idle"`
-	MaxActive   int    `json:"max_active" yaml:"max_active"`
-	IdleTimeout int    `json:"idle_timeout" yaml:"idle_timeout"`
+	URL         string
+	MaxIdle     int
+	MaxActive   int
+	IdleTimeout int
+}
+
+// NewConfig new config
+func NewConfig() (*Config, error) {
+	// New config
+	config := Config{
+		URL: os.Getenv("REDIS_URL"),
+	}
+	// Validate driver
+	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+	// Get config from env
+	config.GetMaxIdleFromEnv()
+	config.GetMaxActiveFromEnv()
+	config.GetIdleTimeoutFromEnv()
+
+	return &config, nil
+}
+
+// GetMaxIdleFromEnv get max idle from env
+func (c *Config) GetMaxIdleFromEnv() {
+	if maxIdle, err := strconv.Atoi(os.Getenv("REDIS_MAX_IDLE")); err == nil {
+		c.MaxIdle = maxIdle
+	}
+}
+
+// GetMaxActiveFromEnv get max idle from env
+func (c *Config) GetMaxActiveFromEnv() {
+	if maxActive, err := strconv.Atoi(os.Getenv("REDIS_MAX_ACTIVE")); err == nil {
+		c.MaxActive = maxActive
+	}
+}
+
+// GetIdleTimeoutFromEnv get max idle from env
+func (c *Config) GetIdleTimeoutFromEnv() {
+	if idleTimeout, err := strconv.Atoi(os.Getenv("REDIS_IDLE_TIMEOUT")); err == nil {
+		c.IdleTimeout = idleTimeout
+	}
+}
+
+// Validate validate
+func (c *Config) Validate() error {
+	if len(c.URL) == 0 {
+		return errors.New("url can't be blank")
+	}
+
+	return nil
 }
 
 // LogrusFields logrus fields
 func (c *Config) LogrusFields() logrus.Fields {
 	return logrus.Fields{
-		"host":         c.Host,
-		"port":         c.Port,
+		"url":          c.URL,
 		"max_idle":     c.MaxIdle,
 		"max_active":   c.MaxActive,
 		"idle_timeout": c.IdleTimeout,
-	}
-}
-
-// Address address
-func (c *Config) Address() string {
-	return fmt.Sprintf("%s:%d", c.Host, c.Port)
-}
-
-// Init init redis pool
-func Init(config Config) {
-	// Print log
-	logex.TextLog().WithFields(config.LogrusFields()).Info("init redis")
-
-	// New redis pool
-	pool = &redis.Pool{
-		MaxIdle:     config.MaxIdle,
-		MaxActive:   config.MaxActive,
-		Wait:        true,
-		IdleTimeout: time.Duration(config.IdleTimeout) * time.Second,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Host, config.Port))
-		},
 	}
 }
