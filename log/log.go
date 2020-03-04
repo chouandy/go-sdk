@@ -43,6 +43,7 @@ func SetFormatter() {
 			CallerPrettyfier: callerPrettyfier,
 			FieldMap:         fieldMap,
 		})
+		return
 	}
 
 	Log.SetFormatter(&logrus.TextFormatter{

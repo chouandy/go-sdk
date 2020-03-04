@@ -26,15 +26,15 @@ func InitGORMDB() error {
 // NewGORMDB new gorm db
 func NewGORMDB() (*gorm.DB, error) {
 	// New db
-	db, err := gorm.Open(config.Driver, config.DataSource())
+	db, err := gorm.Open(config.GetDriver(), config.DataSource())
 	if err != nil {
 		return nil, err
 	}
 
 	// Setup db
-	db.LogMode(config.LogMode)
-	db.DB().SetMaxIdleConns(config.MaxIdleConns)
-	db.DB().SetMaxOpenConns(config.MaxOpenConns)
+	db.LogMode(GetLogModeFromEnv())
+	db.DB().SetMaxOpenConns(GetMaxOpenConnsFromEnv())
+	db.DB().SetMaxIdleConns(GetMaxIdleConnsFromEnv())
 	db.DB().SetConnMaxLifetime(time.Hour)
 
 	return db, nil

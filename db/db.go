@@ -2,7 +2,7 @@ package db
 
 import logex "github.com/chouandy/go-sdk/log"
 
-var config *Config
+var config Config
 
 // Init init
 func Init() (err error) {

@@ -26,14 +26,14 @@ func InitSQLXDB() error {
 // NewSQLXDB new sqlx db
 func NewSQLXDB() (*sqlx.DB, error) {
 	// New db
-	db, err := sqlx.Connect(config.Driver, config.DataSource())
+	db, err := sqlx.Connect(config.GetDriver(), config.DataSource())
 	if err != nil {
 		return nil, err
 	}
 
 	// Setup db
-	db.DB.SetMaxOpenConns(config.MaxOpenConns)
-	db.DB.SetMaxIdleConns(config.MaxIdleConns)
+	db.DB.SetMaxOpenConns(GetMaxOpenConnsFromEnv())
+	db.DB.SetMaxIdleConns(GetMaxIdleConnsFromEnv())
 	db.DB.SetConnMaxLifetime(time.Hour)
 
 	return db, nil
