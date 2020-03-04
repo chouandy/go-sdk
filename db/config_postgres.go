@@ -76,10 +76,12 @@ func NewPostgresConfigFromDatabaseURL() (Config, error) {
 		Password: cfg.Get("password"),
 		SSLMode:  cfg.Get("sslmode"),
 	}
-	// Validate driver
+
+	// Validate
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
+
 	// Load default
 	config.LoadDefault()
 

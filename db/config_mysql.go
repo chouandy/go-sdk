@@ -66,23 +66,17 @@ func NewMySQLConfigFromDatabaseURL() (Config, error) {
 		Password: cfg.Passwd,
 		Collate:  cfg.Collation,
 	}
-	if cfg.Net == "unix" {
-		config.Port = "socket"
-		config.Host = cfg.Addr
-	} else {
-		tmp := strings.Split(cfg.Addr, ":")
-		config.Host = tmp[0]
-		if len(tmp) > 1 {
-			config.Port = tmp[1]
-		}
+	tmp := strings.Split(cfg.Addr, ":")
+	config.Host = tmp[0]
+	if len(tmp) > 1 {
+		config.Port = tmp[1]
 	}
 
-	fmt.Println(config)
-
-	// Validate driver
+	// Validate
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
+
 	// Load default
 	config.LoadDefault()
 
