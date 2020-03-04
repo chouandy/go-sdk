@@ -13,7 +13,7 @@ func Init() (err error) {
 	}
 
 	// Print log
-	logex.TextLog().WithFields(config.LogrusFields()).Info("init db")
+	logex.Log.WithFields(config.LogrusFields()).Info("init db")
 
 	// Init gorm db
 	if err = InitGORMDB(); err != nil {

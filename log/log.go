@@ -1,8 +1,8 @@
 package log
 
 import (
-	"errors"
 	"fmt"
+	"os"
 	"path"
 	"runtime"
 
@@ -24,40 +24,42 @@ var fieldMap = logrus.FieldMap{
 }
 
 // Init init
-func Init(config Config) (err error) {
-	// Print log
-	TextLog().WithFields(config.LogrusFields()).Info("init log")
-
+func Init() {
 	// Set formatter
-	switch config.Format {
-	case "text":
-		Log.SetFormatter(&logrus.TextFormatter{
-			CallerPrettyfier: callerPrettyfier,
-		})
-	case "json":
+	SetFormatter()
+	// Set level
+	SetLevel()
+	// Set reporter caller
+	Log.SetReportCaller(true)
+	// Add hooks
+	Log.AddHook(hooksex.NewSkipCallerHook())
+}
+
+// SetFormatter set formatter
+func SetFormatter() {
+	// Check env
+	if os.Getenv("LOG_FORMATTER") == "json" {
 		Log.SetFormatter(&logrus.JSONFormatter{
 			CallerPrettyfier: callerPrettyfier,
 			FieldMap:         fieldMap,
 		})
-	default:
-		err = errors.New("unknown formatter")
-		return
+	}
+
+	Log.SetFormatter(&logrus.TextFormatter{
+		CallerPrettyfier: callerPrettyfier,
+	})
+}
+
+// SetLevel set level
+func SetLevel() {
+	// Check env
+	level, err := logrus.ParseLevel(os.Getenv("LOG_LEVEL"))
+	if err != nil {
+		level = logrus.DebugLevel
 	}
 
 	// Set level
-	level, err := logrus.ParseLevel(config.Level)
-	if err != nil {
-		return err
-	}
 	Log.SetLevel(level)
-
-	// Set reporter caller
-	Log.SetReportCaller(true)
-
-	// Add hooks
-	Log.AddHook(hooksex.NewSkipCallerHook())
-
-	return nil
 }
 
 func callerPrettyfier(f *runtime.Frame) (function string, file string) {

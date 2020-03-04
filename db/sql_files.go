@@ -54,7 +54,7 @@ func readSQLFiles(dir string) error {
 			// Set to sqls map
 			sqls[filename] = string(data)
 
-			logex.TextLog().Infof("load %s", filename)
+			logex.Log.Infof("load %s", filename)
 		}
 	}
 

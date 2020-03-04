@@ -21,9 +21,12 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
+	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
+	golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135 // indirect
 	google.golang.org/grpc v1.25.1
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.2.7
+	honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc // indirect
 )

@@ -43,10 +43,10 @@ func Load(config interface{}, debug bool) error {
 
 		if !debug {
 			// Print log
-			logex.TextLog().Infof("load %s", filename)
+			logex.Log.Infof("load %s", filename)
 		} else {
 			// Print log
-			logex.TextLog().WithFields(logex.ToLogrusFields(v.Field(i).Interface())).Infof("load %s", filename)
+			logex.Log.WithFields(logex.ToLogrusFields(v.Field(i).Interface())).Infof("load %s", filename)
 		}
 	}
 

@@ -21,7 +21,7 @@ func Init() (err error) {
 	}
 
 	// Print log
-	logex.TextLog().WithFields(config.LogrusFields()).Info("init redis")
+	logex.Log.WithFields(config.LogrusFields()).Info("init redis")
 
 	// New redis pool
 	pool = &redis.Pool{

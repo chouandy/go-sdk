@@ -13,7 +13,7 @@ func Init() (err error) {
 	}
 
 	// Print log
-	logex.TextLog().WithFields(config.LogrusFields()).Info("init mailer")
+	logex.Log.WithFields(config.LogrusFields()).Info("init mailer")
 
 	// Load template files
 	if err = LoadTemplateFiles(); err != nil {

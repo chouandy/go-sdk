@@ -49,7 +49,7 @@ func readTemplateFiles(dir string) error {
 			// Set to templates map
 			templates[filename] = string(data)
 
-			logex.TextLog().Infof("load %s", filename)
+			logex.Log.Infof("load %s", filename)
 		}
 	}
 
