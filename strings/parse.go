@@ -1,9 +1,6 @@
 package strings
 
-import (
-	"encoding/json"
-	"strings"
-)
+import "strings"
 
 // ParseMultipleLineToStringArray parse multiple line data to string array, and remove empty line
 func ParseMultipleLineToStringArray(data string) []string {
@@ -25,7 +22,7 @@ func ConvertStringArrayToJSONArray(data []string) []map[string]interface{} {
 	var new []map[string]interface{}
 	for _, str := range data {
 		var v map[string]interface{}
-		if err := json.Unmarshal([]byte(str), &v); err == nil {
+		if err := jsonex.Unmarshal([]byte(str), &v); err == nil {
 			new = append(new, v)
 		}
 	}
