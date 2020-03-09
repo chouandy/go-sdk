@@ -2,24 +2,22 @@ language: go
 
 go:
   - 1.12
+  - 1.13
+  - 1.14
 
 services:
   - mysql
+  - postgresql
   - redis-server
 
 env:
-  DB_DRIVER: mysql
-  DB_HOST: 127.0.0.1
-  DB_PORT: 3306
-  DB_DATABASE: test
-  DB_USERNAME: root
-  REDIS_URL: redis://redis.vcap.me:6379
-  REDIS_MAX_IDLE: 10
-  REDIS_MAX_ACTIVE: 50
-  REDIS_IDLE_TIMEOUT: 180
-
-before_install:
-  - mysql -e 'CREATE DATABASE test;'
+  global:
+    - MYSQL_DATABASE_URL='mysql://root@tcp(db.vcap.me:3306)/go-sdk_test?charset=utf8'
+    - POSTGRES_DATABASE_URL=postgres://postgres@db.vcap.me:5432/go-sdk_test?sslmode=disable
+    - REDIS_URL=redis://redis.vcap.me:6379
+    - REDIS_MAX_IDLE=10
+    - REDIS_MAX_ACTIVE=50
+    - REDIS_IDLE_TIMEOUT=180
 
 script:
   - go test -v -cover -test.count=1  ./...

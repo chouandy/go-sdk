@@ -14,7 +14,7 @@ type LogModel struct {
 	TriggerID   uint64    `json:"-"`
 	AuditableID uint64    `json:"-"`
 	Action      uint32    `json:"action"`
-	Changes     Changes   `json:"changes"`
+	Changes     Changes   `json:"changes" gorm:"type:text"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 

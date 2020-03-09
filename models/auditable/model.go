@@ -1,6 +1,8 @@
 package auditable
 
-import modelsex "github.com/chouandy/go-sdk/models"
+import (
+	modelsex "github.com/chouandy/go-sdk/models"
+)
 
 // Interface is used to get metadata from your models.
 type Interface interface {
@@ -9,8 +11,8 @@ type Interface interface {
 
 // Model auditable model struct
 type Model struct {
-	OriginalEntity interface{} `gorm:"-"`
-	TriggerID      *uint64     `gorm:"-"`
+	OriginalEntity interface{} `gorm:"-" json:"-"`
+	TriggerID      *uint64     `gorm:"-" json:"-"`
 }
 
 // IsAuditable is auditable
@@ -21,4 +23,9 @@ func (Model) IsAuditable() bool {
 // SetTriggerID set trigger id
 func (m *Model) SetTriggerID(id uint64) {
 	m.TriggerID = modelsex.UInt64(id)
+}
+
+// SetOriginalEntity set original entity
+func (m *Model) SetOriginalEntity(originalEntity interface{}) {
+	m.OriginalEntity = originalEntity
 }

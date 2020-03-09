@@ -20,7 +20,6 @@ type PostgresConfig struct {
 	Password     string
 	Database     string
 	Charset      string
-	Collate      string
 	MaxOpenConns int
 	MaxIdleConns int
 	LogMode      bool
@@ -38,7 +37,6 @@ func NewPostgresConfigFromEnvs() (Config, error) {
 		Username: os.Getenv("DB_USERNAME"),
 		Password: os.Getenv("DB_PASSWORD"),
 		Charset:  os.Getenv("DB_CHARSET"),
-		Collate:  os.Getenv("DB_COLLATE"),
 		SSLMode:  os.Getenv("DB_SSL_MODE"),
 	}
 	// Validate driver
@@ -113,10 +111,6 @@ func (c *PostgresConfig) LoadDefault() {
 	if len(c.Charset) == 0 {
 		c.Charset = "UTF8"
 	}
-	// Set default collate default value
-	if len(c.Collate) == 0 {
-		c.Collate = "en_US.utf8"
-	}
 	// Set ssl mode default value
 	if c.SSLMode == "" {
 		c.SSLMode = "require"
@@ -163,9 +157,7 @@ func (c *PostgresConfig) DataSourceWithoutDatabase() string {
 
 // CreateDatabaseStatement create database statement
 func (c *PostgresConfig) CreateDatabaseStatement() string {
-	return fmt.Sprintf(`CREATE DATABASE "%s" ENCODING = '%s' LC_COLLATE = '%s' LC_CTYPE = '%s';`,
-		c.Database, c.Charset, c.Collate, c.Collate,
-	)
+	return fmt.Sprintf(`CREATE DATABASE "%s" ENCODING = '%s';`, c.Database, c.Charset)
 }
 
 // DropDatabaseStatement drop database statement

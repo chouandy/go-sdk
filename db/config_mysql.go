@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -104,13 +103,10 @@ func (c *MySQLConfig) LoadDefault() {
 	if len(c.Port) == 0 {
 		c.Port = "3306"
 	}
-	// Set charset default value
+	// Set charset, collate default value
 	if len(c.Charset) == 0 {
 		c.Charset = "utf8"
-	}
-	// Set default collate default value
-	if len(c.Collate) == 0 {
-		c.Collate = "utf8mb4_general_ci"
+		c.Collate = "utf8_general_ci"
 	}
 }
 

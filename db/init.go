@@ -2,13 +2,10 @@ package db
 
 import logex "github.com/chouandy/go-sdk/log"
 
-var config Config
-
 // Init init
 func Init() (err error) {
 	// New config
-	config, err = NewConfig()
-	if err != nil {
+	if err = NewConfig(); err != nil {
 		return
 	}
 

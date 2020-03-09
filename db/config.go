@@ -3,11 +3,12 @@ package db
 import (
 	"errors"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 )
+
+var config Config
 
 var errUnknownDBDriver = errors.New("unknown db driver")
 
@@ -25,7 +26,7 @@ type Config interface {
 }
 
 // NewConfig new config
-func NewConfig() (Config, error) {
+func NewConfig() error {
 	// New config from envs
 	driver := os.Getenv("DB_DRIVER")
 	if len(driver) > 0 {
@@ -38,59 +39,36 @@ func NewConfig() (Config, error) {
 		return NewConfigFromDatabaseURL(databaseURL)
 	}
 
-	return nil, errUnknownDBDriver
+	return errUnknownDBDriver
 }
 
 // NewConfigFromEnvs new config from envs
-func NewConfigFromEnvs(driver string) (Config, error) {
+func NewConfigFromEnvs(driver string) (err error) {
 	if driver == "mysql" {
-		return NewMySQLConfigFromEnvs()
+		config, err = NewMySQLConfigFromEnvs()
+		return
 	} else if driver == "postgres" {
-		return NewPostgresConfigFromEnvs()
+		config, err = NewPostgresConfigFromEnvs()
+		return
 	}
 
-	return nil, errUnknownDBDriver
+	return errUnknownDBDriver
 }
 
 // NewConfigFromDatabaseURL new config from database url
-func NewConfigFromDatabaseURL(databaseURL string) (Config, error) {
+func NewConfigFromDatabaseURL(databaseURL string) (err error) {
 	if strings.HasPrefix(databaseURL, "mysql://") {
-		return NewMySQLConfigFromDatabaseURL()
+		config, err = NewMySQLConfigFromDatabaseURL()
+		return
 	} else if strings.HasPrefix(databaseURL, "postgres://") {
-		return NewPostgresConfigFromDatabaseURL()
+		config, err = NewPostgresConfigFromDatabaseURL()
+		return
 	}
 
-	return nil, errUnknownDBDriver
+	return errUnknownDBDriver
 }
 
-// DefaultValue
-const (
-	DefaultMaxIdleConns = 30
-	DefaultMaxOpenConns = 150
-)
-
-// GetMaxOpenConnsFromEnv get max open conns from env
-func GetMaxOpenConnsFromEnv() int {
-	maxOpenConns, err := strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNS"))
-	if err != nil {
-		maxOpenConns = DefaultMaxOpenConns
-	}
-
-	return maxOpenConns
-}
-
-// GetMaxIdleConnsFromEnv get max idle conns from env
-func GetMaxIdleConnsFromEnv() int {
-	maxIdleConns, err := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNS"))
-	if err != nil {
-		maxIdleConns = DefaultMaxIdleConns
-	}
-
-	return maxIdleConns
-}
-
-// GetLogModeFromEnv get log mode from env
-func GetLogModeFromEnv() bool {
-	logMode, _ := strconv.ParseBool(os.Getenv("DB_LOG_MODE"))
-	return logMode
+// GetConfig get config
+func GetConfig() Config {
+	return config
 }

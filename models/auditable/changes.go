@@ -16,13 +16,19 @@ type Changes struct {
 
 // Value for gorm query
 func (c Changes) Value() (driver.Value, error) {
-	data, err := jsonex.Marshal(c)
-	return string(data), err
+	return jsonex.Marshal(c)
 }
 
 // Scan for gorm query
 func (c *Changes) Scan(value interface{}) error {
-	return jsonex.Unmarshal([]byte(value.(string)), c)
+	switch value.(type) {
+	case string:
+		return jsonex.Unmarshal([]byte(value.(string)), c)
+	case []byte:
+		return jsonex.Unmarshal(value.([]byte), c)
+	}
+
+	return errors.New("unknown changes type")
 }
 
 // String changes to string
@@ -33,7 +39,7 @@ func (c *Changes) String() string {
 
 // IsNothingChanged nothing changed
 func (c *Changes) IsNothingChanged() bool {
-	return len(c.Was) == 0 || len(c.Is) == 0
+	return len(c.Was) == 0 && len(c.Is) == 0
 }
 
 // NewChanges new changes
@@ -47,7 +53,7 @@ func NewChanges(scope *gorm.Scope, action uint32) (*Changes, error) {
 	case ActionCreate:
 		// Get auditable fields
 		for _, f := range scope.Fields() {
-			if IsAuditableField(f) && !f.IsBlank {
+			if IsAuditableField(f) {
 				changes.Is[f.DBName] = f.Field.Interface()
 			}
 		}
@@ -85,6 +91,7 @@ func NewChanges(scope *gorm.Scope, action uint32) (*Changes, error) {
 					} else {
 						ov = of.Field.Interface()
 						nv = nf.Field.Interface()
+
 					}
 					// Check ov and nv is the same or not
 					if ov != nv {
@@ -101,7 +108,7 @@ func NewChanges(scope *gorm.Scope, action uint32) (*Changes, error) {
 	case ActionDelete:
 		// Get auditable fields
 		for _, f := range scope.Fields() {
-			if IsAuditableField(f) && !f.IsBlank {
+			if IsAuditableField(f) {
 				changes.Was[f.DBName] = f.Field.Interface()
 			}
 		}

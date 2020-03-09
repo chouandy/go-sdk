@@ -1,6 +1,8 @@
-package db
+package db_test
 
 import (
+	. "github.com/chouandy/go-sdk/db"
+
 	"testing"
 
 	"github.com/stretchr/testify/assert"

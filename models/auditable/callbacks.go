@@ -4,19 +4,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// QueryCallback query callback
-func QueryCallback(scope *gorm.Scope) {
-	// Check is auditable or not
-	if !IsAuditableModel(scope) {
-		return
-	}
-
-	// Set original entity
-	if f, ok := scope.FieldByName(FieldNameOriginalEntity); ok {
-		f.Set(scope.IndirectValue())
-	}
-}
-
 // CreateCallback create callback
 func CreateCallback(scope *gorm.Scope) {
 	// Check is auditable and audit or not
