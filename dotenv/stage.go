@@ -41,7 +41,7 @@ func init() {
 // 2. stage file does not exist, stage encrypted file exists
 func LoadByStage() {
 	// Check stage file exists or not
-	stageFile := filePrefix + "." + stageName
+	stageFile := filePath + filePrefix + "." + stageName
 	if _, err := os.Stat(stageFile); !os.IsNotExist(err) {
 		godotenv.Load(stageFile)
 		return
