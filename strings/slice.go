@@ -59,7 +59,7 @@ func Differences(sliceA, sliceB []string) ([]string, []string, []string) {
 					diffB = append(diffB, strB)
 				} else if count == len(inter) {
 					// All intersections be found, append sliceB remaining strs to diffB
-					diffB = append(diffB, sliceB[i+1:len(sliceB)]...)
+					diffB = append(diffB, sliceB[i+1:]...)
 					break
 				}
 			}
