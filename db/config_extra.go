@@ -33,6 +33,10 @@ func GetMaxIdleConnsFromEnv() int {
 
 // GetLogModeFromEnv get log mode from env
 func GetLogModeFromEnv() bool {
-	logMode, _ := strconv.ParseBool(os.Getenv("DB_LOG_MODE"))
+	logMode, err := strconv.ParseBool(os.Getenv("DB_LOG_MODE"))
+	if err != nil {
+		return false
+	}
+
 	return logMode
 }

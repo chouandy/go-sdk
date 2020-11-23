@@ -3,19 +3,16 @@ package db_test
 import (
 	. "github.com/chouandy/go-sdk/db"
 
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-
 	"fmt"
 	"os"
 	"testing"
 
-	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
-func TestInit(t *testing.T) {
+func TestInitV2(t *testing.T) {
 	// Set test cases
 	testCases := []struct {
 		databaseURL string
@@ -39,12 +36,14 @@ func TestInit(t *testing.T) {
 			assert.Nil(t, err)
 
 			// Init db
-			err = Init()
+			err = InitV2()
 			assert.Nil(t, err)
 
-			db1 := GORM()
+			db1 := GORMV2()
 			assert.IsType(t, &gorm.DB{}, db1)
-			err = GORM().Close()
+			sqlDB, err := GORMV2().DB()
+			assert.Nil(t, err)
+			err = sqlDB.Close()
 			assert.Nil(t, err)
 
 			db2 := SQLX()
