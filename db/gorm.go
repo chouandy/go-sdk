@@ -4,7 +4,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var gormDB atomic.Value
@@ -23,19 +26,45 @@ func InitGORMDB() error {
 	return nil
 }
 
+func NewGORMDialector() (dialector gorm.Dialector, err error) {
+	driver := config.GetDriver()
+	if driver == "mysql" {
+		dialector = mysql.Open(config.DataSource())
+	} else if driver == "postgres" {
+		dialector = postgres.Open(config.DataSource())
+	} else {
+		err = errUnknownDBDriver
+	}
+
+	return
+}
+
 // NewGORMDB new gorm db
 func NewGORMDB() (*gorm.DB, error) {
-	// New db
-	db, err := gorm.Open(config.GetDriver(), config.DataSource())
+	dialector, err := NewGORMDialector()
 	if err != nil {
 		return nil, err
 	}
 
-	// Setup db
-	db.LogMode(GetLogModeFromEnv())
-	db.DB().SetMaxOpenConns(GetMaxOpenConnsFromEnv())
-	db.DB().SetMaxIdleConns(GetMaxIdleConnsFromEnv())
-	db.DB().SetConnMaxLifetime(time.Hour)
+	// New db
+	db, err := gorm.Open(dialector, &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	// debug mode
+	if GetLogModeFromEnv() {
+		db.Logger.LogMode(logger.Info)
+	}
+
+	// setup db
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDB.SetMaxOpenConns(GetMaxOpenConnsFromEnv())
+	sqlDB.SetMaxIdleConns(GetMaxIdleConnsFromEnv())
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	return db, nil
 }
@@ -48,12 +77,24 @@ func GORM() *gorm.DB {
 	// Convert db type
 	db := v.(*gorm.DB)
 
-	// Check db
-	if err := db.DB().Ping(); err != nil {
+	var shouldNewDB bool
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		shouldNewDB = true
+	} else {
+		if err := sqlDB.Ping(); err != nil {
+			shouldNewDB = true
+		}
+	}
+
+	if shouldNewDB {
 		// New db
 		if newDB, err := NewGORMDB(); err == nil {
 			// Close old db
-			db.Close()
+			if sqlDB != nil {
+				sqlDB.Close()
+			}
 			// Set new db
 			gormDB.Store(newDB)
 

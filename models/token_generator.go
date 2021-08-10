@@ -49,7 +49,7 @@ func (g *tokenGenerator) Generate(model interface{}, column string) (string, str
 		enc = hex.EncodeToString(hash.Sum(nil))
 
 		// Check enc is token or not
-		var count int
+		var count int64
 		dbex.GORM().Model(model).Where(column+" = ?", enc).Count(&count)
 		if count == 0 {
 			break

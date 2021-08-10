@@ -2,18 +2,16 @@ package db_test
 
 import (
 	. "github.com/chouandy/go-sdk/db"
-
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 
 	"fmt"
 	"os"
-
 	"testing"
 
-	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 func TestInit(t *testing.T) {
@@ -45,7 +43,9 @@ func TestInit(t *testing.T) {
 
 			db1 := GORM()
 			assert.IsType(t, &gorm.DB{}, db1)
-			err = GORM().Close()
+			sqlDB, err := GORM().DB()
+			assert.Nil(t, err)
+			err = sqlDB.Close()
 			assert.Nil(t, err)
 
 			db2 := SQLX()

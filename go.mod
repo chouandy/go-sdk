@@ -14,7 +14,6 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/iancoleman/strcase v0.2.0
-	github.com/jinzhu/gorm v1.9.16
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.11
@@ -25,4 +24,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	google.golang.org/grpc v1.39.1
 	gopkg.in/yaml.v2 v2.4.0
+	gorm.io/driver/mysql v1.1.1
+	gorm.io/driver/postgres v1.1.0
+	gorm.io/gorm v1.21.12
 )
