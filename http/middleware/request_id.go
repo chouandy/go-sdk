@@ -2,14 +2,13 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 // RequestIDMiddleware request id middleware
 func RequestIDMiddleware(c *gin.Context) {
 	// Generate request id
-	requestID := uuid.Must(uuid.NewV4()).String()
+	requestID := uuid.New().String()
 	// Set request id
 	c.Set("request_id", requestID)
 	// Set request id to response

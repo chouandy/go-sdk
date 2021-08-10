@@ -3,11 +3,10 @@ package db
 import (
 	"errors"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
-	"strings"
 
-	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -55,24 +54,41 @@ func NewPostgresConfigFromDatabaseURL() (Config, error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	// Parse database url
-	name, err := pq.ParseURL(databaseURL)
-	if err != nil {
-		return nil, err
-	}
-	cfg, err := url.ParseQuery(strings.Join(strings.Split(name, " "), "&"))
+	u, err := url.Parse(databaseURL)
 	if err != nil {
 		return nil, err
 	}
 
+	if u.Scheme != "postgres" && u.Scheme != "postgresql" {
+		return nil, fmt.Errorf("invalid connection protocol: %s", u.Scheme)
+	}
+
 	// New config
 	config := PostgresConfig{
-		Driver:   "postgres",
-		Host:     cfg.Get("host"),
-		Port:     cfg.Get("port"),
-		Database: cfg.Get("dbname"),
-		Username: cfg.Get("user"),
-		Password: cfg.Get("password"),
-		SSLMode:  cfg.Get("sslmode"),
+		Driver: "postgres",
+	}
+
+	if u.User != nil {
+		config.Username = u.User.Username()
+
+		if password, ok := u.User.Password(); ok {
+			config.Password = password
+		}
+	}
+
+	if host, port, err := net.SplitHostPort(u.Host); err != nil {
+		config.Host = u.Host
+	} else {
+		config.Host = host
+		config.Port = port
+	}
+
+	if u.Path != "" {
+		config.Database = u.Path[1:]
+	}
+
+	if sslmode := u.Query().Get("sslmode"); len(sslmode) > 0 {
+		config.SSLMode = sslmode
 	}
 
 	// Validate

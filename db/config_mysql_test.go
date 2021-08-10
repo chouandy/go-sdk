@@ -10,11 +10,11 @@ import (
 )
 
 func TestNewMySQLConfigFromDatabaseURL(t *testing.T) {
-	dialect, err := NewMySQLConfigFromDatabaseURL()
+	_, err := NewMySQLConfigFromDatabaseURL()
 	assert.Equal(t, "database can't be blank", err.Error())
 
 	os.Setenv("DATABASE_URL", "mysql://user:pass@tcp(host:3306)/db?charset=utf8&collation=utf8_general_ci")
-	dialect, err = NewMySQLConfigFromDatabaseURL()
+	dialect, err := NewMySQLConfigFromDatabaseURL()
 	assert.Nil(t, err)
 	assert.Equal(t, "mysql", dialect.GetDriver())
 	assert.Equal(t, "mysql://user:pass@tcp(host:3306)/db?charset=utf8&parseTime=true", dialect.DatabaseURL())

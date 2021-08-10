@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
@@ -46,27 +46,24 @@ func GetSecretsPassword() string {
 // GetSecretsPasswordFromParameterStore get secrets password fromparameterstore
 func GetSecretsPasswordFromParameterStore() (string, error) {
 	// new aws ssm client
-	cfg, err := external.LoadDefaultAWSConfig()
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return "", err
 	}
 	cfg.Region = secretsPasswordPsRegion
-	client := ssm.New(cfg)
+	client := ssm.NewFromConfig(cfg)
 
 	// New input
 	input := &ssm.GetParameterInput{
 		Name:           aws.String(secretsPasswordPsName),
-		WithDecryption: aws.Bool(true),
+		WithDecryption: true,
 	}
 
 	// New request
-	request := client.GetParameterRequest(input)
-
-	// Send request
-	resp, err := request.Send(context.Background())
+	resp, err := client.GetParameter(context.TODO(), input)
 	if err != nil {
 		return "", err
 	}
 
-	return aws.StringValue(resp.Parameter.Value), nil
+	return aws.ToString(resp.Parameter.Value), nil
 }

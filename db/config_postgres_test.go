@@ -10,11 +10,11 @@ import (
 )
 
 func TestNewPostgresConfigFromDatabaseURL(t *testing.T) {
-	dialect, err := NewPostgresConfigFromDatabaseURL()
+	_, err := NewPostgresConfigFromDatabaseURL()
 	assert.Equal(t, "invalid connection protocol: ", err.Error())
 
 	os.Setenv("DATABASE_URL", "postgres://user:pass@host:5432/db?sslmode=disable")
-	dialect, err = NewPostgresConfigFromDatabaseURL()
+	dialect, err := NewPostgresConfigFromDatabaseURL()
 	assert.Nil(t, err)
 	assert.Equal(t, "postgres", dialect.GetDriver())
 	assert.Equal(t, "postgres://user:pass@host:5432/db?sslmode=disable", dialect.DatabaseURL())
