@@ -2,9 +2,9 @@ package http
 
 // ListOptions list options struct
 type ListOptions struct {
-	Page     int64 `form:"page"`
-	PageSize int64 `form:"page_size"`
-	Count    bool  `form:"count"`
+	Page     int  `form:"page"`
+	PageSize int  `form:"page_size"`
+	Count    bool `form:"count"`
 }
 
 // IsPagination is pagination
@@ -13,11 +13,11 @@ func (o *ListOptions) IsPagination() bool {
 }
 
 // Limit return limit for sql query
-func (o *ListOptions) Limit() int64 {
+func (o *ListOptions) Limit() int {
 	return o.PageSize
 }
 
 // Offset return offset for sql query
-func (o *ListOptions) Offset() int64 {
+func (o *ListOptions) Offset() int {
 	return (o.Page - 1) * o.PageSize
 }
